@@ -41,15 +41,12 @@ import java.util.Optional;
 public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final BooleanProperty TRIGGERED;
     public static final BooleanProperty CRAFTING;
-    private static final int field_46802 = 6;
-    private static final int TRIGGER_DELAY = 4;
     private static final RecipeCache recipeCache = new RecipeCache(10);
-    private static final int field_50015 = 17;
     private static final EnumProperty<JigsawOrientation> ORIENTATION;
 
     public CrafterBlock(Settings settings) {
         super(settings);
-        this.setDefaultState((BlockState)((BlockState)((BlockState)((BlockState)this.stateManager.getDefaultState()).with(ORIENTATION, JigsawOrientation.NORTH_UP)).with(TRIGGERED, false)).with(CRAFTING, false));
+        this.setDefaultState(this.stateManager.getDefaultState().with(ORIENTATION, JigsawOrientation.NORTH_UP).with(TRIGGERED, false).with(CRAFTING, false));
     }
 
     @Override
@@ -59,8 +56,7 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof CrafterBlockEntity) {
-            CrafterBlockEntity crafterBlockEntity = (CrafterBlockEntity)blockEntity;
+        if (blockEntity instanceof CrafterBlockEntity crafterBlockEntity) {
             return crafterBlockEntity.getComparatorOutput();
         }
         return 0;
@@ -72,10 +68,10 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (bl && !bl2) {
             world.scheduleBlockTick(pos, this, 4);
-            world.setBlockState(pos, (BlockState)state.with(TRIGGERED, true), Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NOTIFY_LISTENERS);
             this.setTriggered(blockEntity, true);
         } else if (!bl && bl2) {
-            world.setBlockState(pos, (BlockState)((BlockState)state.with(TRIGGERED, false)).with(CRAFTING, false), Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state.with(TRIGGERED, false).with(CRAFTING, false), Block.NOTIFY_LISTENERS);
             this.setTriggered(blockEntity, false);
         }
     }
@@ -91,8 +87,7 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
     }
 
     private void setTriggered(@Nullable BlockEntity blockEntity, boolean triggered) {
-        if (blockEntity instanceof CrafterBlockEntity) {
-            CrafterBlockEntity crafterBlockEntity = (CrafterBlockEntity)blockEntity;
+        if (blockEntity instanceof CrafterBlockEntity crafterBlockEntity) {
             crafterBlockEntity.setTriggered(triggered);
         }
     }
@@ -101,23 +96,22 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         CrafterBlockEntity crafterBlockEntity = new CrafterBlockEntity(pos, state);
-        crafterBlockEntity.setTriggered(state.contains(TRIGGERED) && state.get(TRIGGERED) != false);
+        crafterBlockEntity.setTriggered(state.contains(TRIGGERED) && state.get(TRIGGERED));
         return new CrafterBlockEntity(pos,state);
     }
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction direction = ctx.getPlayerLookDirection().getOpposite();
         Direction direction2 = switch (direction) {
-            default -> throw new RuntimeException(null, null);
             case DOWN -> ctx.getHorizontalPlayerFacing().getOpposite();
             case UP -> ctx.getHorizontalPlayerFacing();
             case NORTH, SOUTH, WEST, EAST -> Direction.UP;
         };
-        return (BlockState)((BlockState)this.getDefaultState().with(ORIENTATION, JigsawOrientation.byDirections(direction, direction2))).with(TRIGGERED, ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos()));
+        return this.getDefaultState().with(ORIENTATION, JigsawOrientation.byDirections(direction, direction2)).with(TRIGGERED, ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos()));
     }
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-        if (state.get(TRIGGERED).booleanValue()) {
+        if (state.get(TRIGGERED)) {
             world.scheduleBlockTick(pos, this, 4);
         }
     }
@@ -128,8 +122,7 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
             return;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof Inventory) {
-            Inventory inventory = (Inventory)((Object)blockEntity);
+        if (blockEntity instanceof Inventory inventory) {
             ItemScatterer.spawn(world, pos, inventory);
             world.updateComparators(pos, state.getBlock());
         }
@@ -152,10 +145,9 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
     }
     protected void craft(BlockState state, ServerWorld world, BlockPos pos){
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof CrafterBlockEntity)) {
+        if (!(blockEntity instanceof CrafterBlockEntity crafterBlockEntity)) {
             return;
         }
-        CrafterBlockEntity crafterBlockEntity = (CrafterBlockEntity)blockEntity;
         CraftingInventory craftingInventory = new CraftingInventory(new VoidScreenHandler(),3,3);
         Optional<CraftingRecipe> optional = CrafterBlock.getCraftingRecipe(world, crafterBlockEntity);
         if (optional.isEmpty()) {
@@ -169,7 +161,7 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
             return;
         }
         crafterBlockEntity.setCraftingTicksRemaining(6);
-        world.setBlockState(pos, (BlockState)state.with(CRAFTING, true), Block.NOTIFY_LISTENERS);
+        world.setBlockState(pos, state.with(CRAFTING, true), Block.NOTIFY_LISTENERS);
         itemStack.getItem().onCraft(itemStack,world,null);
         this.transferOrSpawnStack(world, pos, crafterBlockEntity, itemStack, state);
         /*
@@ -202,8 +194,7 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
                 itemStack.decrement(1);
             }
         } else if (inventory != null) {
-            int i;
-            while (!itemStack.isEmpty() && (i = itemStack.getCount()) != (itemStack = HopperBlockEntity.transfer(blockEntity, inventory, itemStack, direction.getOpposite())).getCount()) {
+            while (!itemStack.isEmpty() && itemStack.getCount() != (itemStack = HopperBlockEntity.transfer(blockEntity, inventory, itemStack, direction.getOpposite())).getCount()) {
             }
         }
         if (!itemStack.isEmpty()) {
@@ -219,12 +210,12 @@ public class CrafterBlock extends BlockWithEntity implements BlockEntityProvider
 
     @Override
     public BlockState rotate(BlockState state, BlockRotation rotation) {
-        return (BlockState)state.with(ORIENTATION, rotation.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
+        return state.with(ORIENTATION, rotation.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
     }
 
     @Override
     public BlockState mirror(BlockState state, BlockMirror mirror) {
-        return (BlockState)state.with(ORIENTATION, mirror.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
+        return state.with(ORIENTATION, mirror.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
     }
 
     @Override

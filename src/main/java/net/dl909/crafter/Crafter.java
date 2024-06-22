@@ -19,7 +19,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 
 public class Crafter implements ModInitializer {
 
@@ -40,7 +39,7 @@ public class Crafter implements ModInitializer {
 						return;
 					}
 					Object object = player.currentScreenHandler;
-					if (object instanceof CrafterScreenHandler && ((CrafterScreenHandler)object).getInputInventory() instanceof CrafterBlockEntity) {
+					if (object instanceof CrafterScreenHandler && (object = ((CrafterScreenHandler)object).getInputInventory()) instanceof CrafterBlockEntity) {
 						CrafterBlockEntity crafterBlockEntity = (CrafterBlockEntity)object;
 						crafterBlockEntity.setSlotEnabled(slotId, enabled);
 					}

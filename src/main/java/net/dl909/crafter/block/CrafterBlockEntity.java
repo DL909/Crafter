@@ -1,6 +1,5 @@
 package net.dl909.crafter.block;
 
-import com.google.common.annotations.VisibleForTesting;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.dl909.crafter.Crafter;
@@ -148,10 +147,7 @@ public class CrafterBlockEntity extends LootableContainerBlockEntity implements 
             this.propertyDelegate.set(i, 0);
         }
 
-        int var5 = is.length;
-
-        for(int var6 = 0; var6 < var5; ++var6) {
-            int j = is[var6];
+        for (int j : is) {
             if (this.canToggleSlot(j)) {
                 this.propertyDelegate.set(j, 1);
             }
@@ -227,15 +223,9 @@ public class CrafterBlockEntity extends LootableContainerBlockEntity implements 
         return this.inputStacks;
     }
 
-    public void setHeldStacks(DefaultedList<ItemStack> inventory) {
-        this.inputStacks = inventory;
-    }
-
     public void provideRecipeInputs(RecipeMatcher finder) {
-        Iterator<ItemStack> var2 = this.inputStacks.iterator();
 
-        while(var2.hasNext()) {
-            ItemStack itemStack = var2.next();
+        for (ItemStack itemStack : this.inputStacks) {
             finder.addUnenchantedInput(itemStack);
         }
 
@@ -261,17 +251,12 @@ public class CrafterBlockEntity extends LootableContainerBlockEntity implements 
         this.propertyDelegate.set(9, triggered ? 1 : 0);
     }
 
-    @VisibleForTesting
-    public boolean isTriggered() {
-        return this.propertyDelegate.get(9) == 1;
-    }
-
     public static void tickCrafting(World world, BlockPos pos, BlockState state, CrafterBlockEntity blockEntity) {
         int i = blockEntity.craftingTicksRemaining - 1;
         if (i >= 0) {
             blockEntity.craftingTicksRemaining = i;
             if (i == 0) {
-                world.setBlockState(pos, (BlockState)state.with(CrafterBlock.CRAFTING, false), 3);
+                world.setBlockState(pos, state.with(CrafterBlock.CRAFTING, false), 3);
             }
 
         }

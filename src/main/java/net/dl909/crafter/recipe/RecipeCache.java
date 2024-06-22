@@ -51,7 +51,7 @@ public class RecipeCache {
     private void validateRecipeManager(World world) {
         RecipeManager recipeManager = world.getRecipeManager();
         if (recipeManager != this.recipeManagerRef.get()) {
-            this.recipeManagerRef = new WeakReference<RecipeManager>(recipeManager);
+            this.recipeManagerRef = new WeakReference<>(recipeManager);
             Arrays.fill(this.cache, null);
         }
     }

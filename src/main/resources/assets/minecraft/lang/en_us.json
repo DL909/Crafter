@@ -1,4 +1,5 @@
 {
   "block.minecraft.crafter": "crafter",
-  "gui.toggleable_slot": "Click to disable slot"
+  "gui.toggleable_slot": "Click to disable slot",
+  "container.crafter": "crafter"
 }

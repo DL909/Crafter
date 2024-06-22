@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -46,16 +45,16 @@ public class CrafterScreen extends HandledScreen<CrafterScreenHandler> {
         if (slot instanceof CrafterInputSlot && !slot.hasStack() && !this.player.isSpectator()) {
             switch (actionType) {
                 case PICKUP:
-                    if (((CrafterScreenHandler)this.handler).isSlotDisabled(slotId)) {
+                    if (this.handler.isSlotDisabled(slotId)) {
                         this.enableSlot(slotId);
 
-                    } else if (((CrafterScreenHandler)this.handler).getCursorStack().isEmpty()) {
+                    } else if (this.handler.getCursorStack().isEmpty()) {
                         this.disableSlot(slotId);
                     }
                     break;
                 case SWAP:
                     ItemStack itemStack = this.player.getInventory().getStack(button);
-                    if (((CrafterScreenHandler)this.handler).isSlotDisabled(slotId) && !itemStack.isEmpty()) {
+                    if (this.handler.isSlotDisabled(slotId) && !itemStack.isEmpty()) {
                         this.enableSlot(slotId);
                     }
             }
@@ -72,15 +71,14 @@ public class CrafterScreen extends HandledScreen<CrafterScreenHandler> {
     }
 
     private void setSlotEnabled(int slotId, boolean enabled) {
-        ((CrafterScreenHandler)this.handler).setSlotEnabled(slotId, enabled);
+        this.handler.setSlotEnabled(slotId, enabled);
         float f = enabled ? 1.0F : 0.75F;
         PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeBlockPos(this.handler.pos);
         buf.writeInt(slotId);
         buf.writeInt(this.handler.syncId);
         buf.writeBoolean(enabled);
         ClientPlayNetworking.send(Crafter.SLOT_CHANGE_STATE, buf);
-        this.player.playSound((SoundEvent)SoundEvents.UI_BUTTON_CLICK.value(), 0.4F, f);
+        this.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.4F, f);
     }
 
     @Override
@@ -95,7 +93,7 @@ public class CrafterScreen extends HandledScreen<CrafterScreenHandler> {
         }
         drawArrowTexture(matrices);
         drawMouseoverTooltip(matrices, mouseX, mouseY);
-        if (this.focusedSlot instanceof CrafterInputSlot && !((CrafterScreenHandler)this.handler).isSlotDisabled(this.focusedSlot.id) && ((CrafterScreenHandler)this.handler).getCursorStack().isEmpty() && !this.focusedSlot.hasStack() && !this.player.isSpectator()) {
+        if (this.focusedSlot instanceof CrafterInputSlot && !this.handler.isSlotDisabled(this.focusedSlot.id) && this.handler.getCursorStack().isEmpty() && !this.focusedSlot.hasStack() && !this.player.isSpectator()) {
             this.renderTooltip(matrices, TOGGLEABLE_SLOT_TEXT, mouseX, mouseY);
         }
     }
