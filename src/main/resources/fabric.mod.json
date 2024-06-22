@@ -1,29 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "crafter",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Crafter",
+  "description": "A minecraft mod port crafter block from mc1.20+ to mc1.19.4",
   "authors": [
     "DL909"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/"
+    "homepage": "https://github.com/DL909/Crafter",
+    "sources": "https://github.com/DL909/Crafter"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/minecraft/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.dl909.crafter.ExampleMod"
+      "net.dl909.crafter.Crafter"
+    ],
+    "client": [
+      "net.dl909.crafter.client.Crafter_client"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "crafter.mixins.json"
   ],
 
   "depends": {
